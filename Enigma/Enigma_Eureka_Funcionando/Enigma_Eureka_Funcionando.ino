@@ -1,3 +1,13 @@
+
+//Maquina Engima para Eureka
+//Idea Original STGEOLECTRONICS
+//Codigo re adaptado y modificado
+//Se presentan los rotores, y si se pone la hora correcta (8:20) se pasa al modo typewritter
+//Las letras estan cambiadas en funcion de la pista.
+
+//BUG :  LOS BOTONES TERMINAN DISPARANDO A OTROS BOTONES, EN LA SELECCION DE ROTORES Y EN LAS LETRAS 
+// ¿ PROBLEMA DE DEBOUNCE ? PROBLEMA FISICO DE LOS BOTONES ?
+
 // Define the variables
 unsigned long time = millis();
 unsigned long otime = time;
@@ -14,14 +24,14 @@ boolean windex2 = 0;
 int lampval = 100;
 int procesval = 0;
 int procesvala = 0;
-int mode = 2;  //poner en 2 cuando este lista 
+
+int mode = 2;                  //poner en 2 cuando este lista 
+
 unsigned long mtime;
 int mdex =0;
 int behavior = 1;
 int plugred = 0;
 
-//Define Plug Board Pins
-int plug[26] = {A14, 49, A12, A15, 7, 53, 50, 52, 3, A6, A4, A11, A9, A10, 8, A7, 6, 4, 51, 10, 9, A5, 5, A8, A13, 2} ;
 // Define each Nixie character
 int dig1 = 37;
 int dig2 = 37;
@@ -45,8 +55,10 @@ int lamparray[26] [2] = {{12,38},{13,29},{13,33},{12,35},{11,35},{12,33},{12,31}
                          {11,27},{13,31},{11,37},{13,35},{13,37},{11,29}};
 
 //  Define the 12 Lamp Pins for initialization
+
 //int lamppin[12] = {2,3,4,5,6,7,8,9,10,11,12,13}; //2 to 10 cathode, 11 to 13 common annode
  int lamppin[3] = {11,12,13};
+ 
  // Define each LTP587P Segments: A,B,C,D,E,F,G,H,K,M,N,P,R,S,T,U,dp               
 boolean segmentvals[40][17] = { { 0,0,0,0,1,1,0,0,1,1,1,0,1,1,1,0,1 },  // = A 0
                                 { 0,0,0,0,0,0,1,1,1,0,1,0,1,0,1,1,1 },  // = B 1
@@ -195,6 +207,7 @@ static const int rotorvali[10][78] = { { 20,22,24, 6, 0, 3, 5,15,21,25, 1, 4, 2,
 // Define a 2D Array for keeping the wheel locations & positions
 // Aca defino que letra o numero sea el primero en verse . 26= 0
 int wheel[4][3] = {{29,26,0},{28,26,0},{27,26,0},{1,26,0}};
+//sin uso, solo en el modo 1
 int reflect[2] = {1,0};
 
 // Define Array for plugbord values 25 x2 position 0 holds use position 1 holds value int plugu holds the total nomber of plugs used (10 max)
@@ -259,6 +272,7 @@ void loop() {
   if (time > otime + 100) {keyval = readkbde();}
   if(keyval == kvalo) {windex = 0;}
   kvalo = keyval;
+  
   //if ((mode == 0) && (keyval == 46) && (windex ==1)){ behavior ++; windex =0; if(behavior > 2) {behavior = 0; } }   //cambia entre mark 4 y 3
   
   //if((keyval == 45) && (windex ==1)) {modeselect();} //selector de modo
@@ -269,9 +283,6 @@ void loop() {
   else if(mode == 1) {mode1();}
   else if(mode == 2 && avanzamos != 1) {mode2();}  
   else if(mode == 2 && avanzamos == 1) {mode0();}
-  else if(mode == 3) {mode3();}
-  else if(mode == 4) {mode4();}
-  else if(mode == 5) {mode5();}
   else {    }
 
 //Serial.println(keyval); // for debuging prints keybord value to serial monitor// for run or del
@@ -337,8 +348,10 @@ void modeselect() {
 
 // Default Mode: Enigma is a Typewriter
 void mode0() {
+  
     digitalWrite(led5,HIGH);
     /* PISTAS */
+    
     if((keyval >= 0) && (keyval <= 25)) {
     if (keyval == 11 ){lampval = 4;}          //L-E    
     if (keyval == 13){lampval = 20;}          //N-U  
@@ -348,7 +361,9 @@ void mode0() {
     if (keyval == 16){lampval = 22;}            //Q-W
     if (keyval == 7){lampval = 6;}            //H-G
     if (keyval == 4  ){lampval = 13; }           //E-N
-    /**/
+    
+    
+    /*EL RESTO*/
     if (keyval == 0){lampval = 18;}          //  A - S
     if (keyval == 2){lampval = 8;}          //  C - I
     if (keyval == 10){lampval = 3;}          // K -D
@@ -365,30 +380,9 @@ void mode0() {
     if (keyval == 8){lampval = 7;}          //  I - H
     if (keyval == 12){lampval = 5;}        // M - F
     if (keyval == 20){lampval = 11;}        //  U - L
-                                
-     /* ABECEDARIO */
-      if (keyval == 5){lampval = 5;}          //  F
-      if (keyval == 9){lampval = 9;}          //  J
+    if (keyval == 5){lampval = 5;}          //  F
+    if (keyval == 9){lampval = 9;}          //  J
       
-      /*if (keyval == 0){lampval = 0;}          //  A
-      if (keyval == 1){lampval = 1;}          //  B
-      if (keyval == 2){lampval = 2;}          //  C
-      if (keyval == 5){lampval = 5;}          //  F
-      if (keyval == 6){lampval = 6;}          //  G
-      if (keyval == 8){lampval = 8;}          //  I
-      if (keyval == 9){lampval = 9;}          //  J
-      if (keyval == 10){lampval = 10;}          // K 
-      if (keyval == 12){lampval = 12;}          // M 
-      if (keyval == 15){lampval = 15;}          //  P
-      if (keyval == 17){lampval = 17;}          //  R
-      if (keyval == 19){lampval = 19;}          //  T
-      if (keyval == 20){lampval = 20;}          //  U
-      if (keyval == 21){lampval = 21;}          //  V
-      if (keyval == 22){lampval = 22;}          //  W
-      if (keyval == 23){lampval = 23;}          //  X
-      if (keyval == 24){lampval = 24;}          //  Y
-      if (keyval == 25){lampval = 25;}          //  Z
-      */
     //lampval = keyval;
     
       }
@@ -397,9 +391,10 @@ void mode0() {
   
   else {lampval = 100;}
   lampita();
+  //jugar con esto
   delay(3);
   lampitb();
-  marquee();
+  //marquee();
 
  
     
@@ -451,161 +446,12 @@ void mode0() {
       windex = 0; }
     
     dig2 = wheel[2][1];  dig3 = wheel[1][1]; dig4 = wheel[0][1]; if(behavior != 2) {dig1 =wheel[3][1];} else {dig1 = 26;}
-    if (dig2 == 34 && dig3 == 28 && dig4 == 26 && dig1 == 26) {avanzamos = 1; Serial.println("BIEN"); mode0();}  // Hora 8:20 8-34 -2-28-26-0
+    if (dig2 == 34 && dig3 == 28 && dig4 == 26 && dig1 == 26) {avanzamos = 1; mode0();}  // Hora 8:20 8-34 -2-28-26-0
     nixisend();
-    dig1 = 26; dig2 = 26; dig3 = 26; dig4 = 37;
+    dig1 = 26; dig2 = 26; dig3 = 26; dig4 = 37; //Aca no entiendo este 37
     digitalWrite(led2, LOW);
   }
 
-// Position the Start character of each Wheel  
-  void mode3() {
-    digitalWrite(led3, HIGH);
-    if(windex == 1){
-     if(behavior != 2) { if(keyval == 46) {wheel[3][2]++; if(wheel[3][2] > 25) {wheel[3][2] = 0;}}}                                                                          // {reflect[1]++; if(reflect[1] > 25) {reflect[1] = 0;}}}
-      if(keyval == 47) {wheel[2][2]++; if(wheel[2][2] > 25) {wheel[2][2] = 0;}}
-      if(keyval == 48) {wheel[1][2]++; if(wheel[1][2] > 25) {wheel[1][2] = 0;}}
-      if(keyval == 49) {wheel[0][2]++; if(wheel[0][2] > 25) {wheel[0][2] = 0;}}
-      if(behavior != 2) {if(keyval == 43) {wheel[3][2]--; if(wheel[3][2] < 0) {wheel[3][2] = 25;}}}                                                                          // {reflect[1]--; if(reflect[1] < 0) {reflect[1] = 25;}}}
-      if(keyval == 42) {wheel[2][2]--; if(wheel[2][2] < 0) {wheel[2][2] = 25;}}
-      if(keyval == 41) {wheel[1][2]--; if(wheel[1][2] < 0) {wheel[1][2] = 25;}}
-      if(keyval == 40) {wheel[0][2]--; if(wheel[0][2] < 0) {wheel[0][2] = 25;}}
-      windex = 0; }
-    
-    dig2 = wheel[2][2];  dig3 = wheel[1][2]; dig4 = wheel[0][2]; dig1 = wheel[3][2];
-    if (behavior == 2) {dig1 = 36;}
-    nixisend();
-    dig1 =37; dig2 = 37; dig3 = 37; dig4 = 37;
-    digitalWrite(led3, LOW);
-  }
-
-// Define the Plugboard pairs  
-  void mode4() {
-     if(plugred == 0) {readplugs(); }
-    int index = 0;
-    digitalWrite(led4, HIGH);
-    if(pluguse <= 9) {
-    if(plugval[0][paindex] == 1) {for(index = paindex;(index == paindex) || (index == pbindex) || (plugval[0][index] == 1); index++) {if(index > 24) {index = -1;}} paindex = index;}
-    if(plugval[0][pbindex] == 1) {for(index = pbindex;(index == pbindex) || (index == paindex) || (plugval[0][index] == 1); index++) {if(index > 24) {index = -1;}} pbindex = index;}
-    if(windex == 1)  { 
-    if(keyval == 46) { for(index = paindex;(index == paindex) || (index == pbindex) || (plugval[0][index] == 1); index++) {if(index > 24) {index = -1;}} paindex = index; windex = 0; }
-    if(keyval == 43) { for(index = paindex;(index == paindex) || (index == pbindex) || (plugval[0][index] == 1); index--) {if(index < 1) {index = 26;}} paindex = index; windex = 0;  }
-    if(keyval == 49) { for(index = pbindex;(index == pbindex) || (index == paindex) || (plugval[0][index] == 1); index++) {if(index > 24) {index = -1;}} pbindex = index; windex = 0; }
-    if(keyval == 40) { for(index = pbindex;(index == pbindex) || (index == paindex) || (plugval[0][index] == 1); index--) {if(index < 1) {index = 26;}} pbindex = index; windex = 0;  }
-    if(keyval == 44) { plugval[0][paindex] = 1; plugval[1][paindex] = pbindex; plugval[0][pbindex] = 1; plugval[1][pbindex] = paindex; windex = 0; pluguse++;}
-    }
-    dig2 = 19; dig3 = 14; dig4 = pbindex; dig1 = paindex;
-    nixisend();
-    dig1 =37; dig2 = 37; dig3 = 37; dig4 = 37;
-      }
-      else {done();}
-    digitalWrite(led4, LOW);
-  }
-
-// This is Normal Operation Mode to Encrypt/Decrypt  
-  void mode5() {
-  
-    int pv = 0;
-    digitalWrite(led5, HIGH);
-    if(keyval >= 26) {lampval = 100;}
-    else {
-    int windexb = windex;
-    if((keyval >= 0) && (keyval <= 25)) {  if(windex == 1){procesvala = keyval;  indexwheels();}}
-
-    procesval = procesvala;
-    procesval = plugval[1][procesval];
-   // Serial.print (procesval); Serial.print("   ");
-    
-    pv = (procesval + (wheel[0][2] - wheel[0][1]));
-    if(pv < 0) {pv = pv + 26;}
-    procesval = rotorvals[wheel[0][0] -27][pv]; 
-    if(procesval >= 100) {procesval = procesval - 100;}
-    procesval = (procesval - (wheel[0][2] - wheel[0][1]));
-    if(procesval < 0) {procesval = procesval + 26;}if(procesval > 25) {procesval = procesval - 26;}
-  //  Serial.print (procesval); Serial.print("   ");
-    
-    pv = (procesval + (wheel[1][2] - wheel[1][1]));
-    if(pv < 0) {pv = pv + 26;}
-    procesval = rotorvals[wheel[1][0] -27][pv]; 
-    if(procesval >= 100) {procesval = procesval - 100;}
-    procesval = (procesval - (wheel[1][2] - wheel[1][1]));
-    if(procesval < 0) {procesval = procesval + 26;}if(procesval > 25) {procesval = procesval - 26;}
-   // Serial.print (procesval); Serial.print("   ");
-    
-    pv = (procesval + (wheel[2][2] - wheel[2][1]));
-    if(pv < 0) {pv = pv + 26;}
-    procesval = rotorvals[wheel[2][0] -27][pv]; 
-    if(procesval >= 100) {procesval = procesval - 100;}
-    procesval = (procesval - (wheel[2][2] - wheel[2][1]));
-    if(procesval < 0) {procesval = procesval + 26;}if(procesval > 25) {procesval = procesval - 26;}
-   // Serial.print (procesval); Serial.print("   ");
-   
-     pv = (procesval + (wheel[3][2] - wheel[3][1]));
-    if(pv < 0) {pv = pv + 26;}
-    procesval = rotorvals[wheel[3][0] +7][pv]; 
-    if(procesval >= 100) {procesval = procesval - 100;}
-    procesval = (procesval - (wheel[3][2] - wheel[3][1]));
-    if(procesval < 0) {procesval = procesval + 26;}if(procesval > 25) {procesval = procesval - 26;}
-   // Serial.print (procesval); Serial.print("   ");
-   
-   
-    procesval = rotorvals[reflect[0] + 9][procesval];
-    //Serial.print (procesval); Serial.print("   ");
-    
-   
-     pv = (procesval + (wheel[3][2] - wheel[3][1]));
-    if(pv < 0) {pv = pv + 26;}
-    procesval = rotorvali[wheel[3][0] +7][pv]; 
-    if(procesval >= 100) {procesval = procesval - 100;}
-    procesval = (procesval - (wheel[3][2] - wheel[3][1]));
-    if(procesval < 0) {procesval = procesval + 26;}if(procesval > 25) {procesval = procesval - 26;}
-   //Serial.print (procesval); Serial.print("   ");
-    
-  
-    pv = (procesval + (wheel[2][2] - wheel[2][1]));
-    if(pv < 0) {pv = pv + 26;}
-    procesval = rotorvali[wheel[2][0] -27][pv]; 
-    if(procesval >= 100) {procesval = procesval - 100;}
-    procesval = (procesval - (wheel[2][2] - wheel[2][1]));
-    if(procesval < 0) {procesval = procesval + 26;}if(procesval > 25) {procesval = procesval - 26;}
-   //Serial.print (procesval); Serial.print("   ");
-  
-    pv = (procesval + (wheel[1][2] - wheel[1][1]));
-    if(pv < 0) {pv = pv + 26;}
-    procesval = rotorvali[wheel[1][0] -27][pv]; 
-    if(procesval >= 100) {procesval = procesval - 100;}
-    procesval = (procesval - (wheel[1][2] - wheel[1][1]));
-    if(procesval < 0) {procesval = procesval + 26;}if(procesval > 25) {procesval = procesval - 26;}
-   //Serial.print (procesval); Serial.print("   ");
-   
-    pv = (procesval + (wheel[0][2] - wheel[0][1]));
-    if(pv < 0) {pv = pv + 26;}
-    procesval = rotorvali[wheel[0][0] -27][pv]; 
-    if(procesval >= 100) {procesval = procesval - 100;}
-    procesval = (procesval - (wheel[0][2] - wheel[0][1]));
-    if(procesval < 0) {procesval = procesval + 26;}if(procesval > 25) {procesval = procesval - 26;}
-   
-   // Serial.print (procesval); Serial.print("   ");
-   
-    procesval = plugval[1][procesval];
-    if(windexb == 1) {
-   Serial3.write(procesval + 65);
-   prindex ++;
-   if(prindex > 3) {Serial3.print(" "); prtindex ++; prindex = 0; }
-   if(prtindex > 2) {Serial3.println(""); Serial3.println(""); prtindex = 0;}
-    }
-    lampval = procesval;
-    }
-    windex = 0;
-    //Serial.println(lampval);
-    dig2 = wheel[2][2];  dig3 = wheel[1][2]; dig4 = wheel[0][2]; dig1 = wheel[3][2];
-     if (behavior == 2) {dig1 = 36;}
-    lampita();
-   delay(3);
-    lampitb();
-     nixisend();
-    dig1 =37; dig2 = 37; dig3 = 37; dig4 = 37;
-    digitalWrite(led5, LOW);
-  }
 
 // Helper Function to light the proper key 
  void lampita() {
@@ -683,26 +529,26 @@ void sixteenSegWrite(int digit, int character) {
     wheel[2][2]++; if(wheel[2][2] > 25) {wheel[2][2] = 0;}
       windex2 = 0; } 
   }
- void readplugs() {
-   for (int index = 0 ; index <= 24; index++) {
-    
-   pinMode(plug[index], OUTPUT);
-   digitalWrite(plug[index], LOW); 
-     
-   for (int indexb = (index +1); indexb <= 25; indexb++) {
-   
-    int plugvar = digitalRead(plug[indexb]);
-   if (plugvar == 0) {
-     pluguse ++;
-     plugval[0] [index] = 1; plugval[0] [indexb] = 1;
-     plugval[1] [index] = indexb; plugval[1] [indexb] = index;
-   }
-   }
-   pinMode(plug[index], INPUT);
-   }
-   plugred = 1;
- }
-     
+// void readplugs() {
+//   for (int index = 0 ; index <= 24; index++) {
+//    
+//   pinMode(plug[index], OUTPUT);
+//   digitalWrite(plug[index], LOW); 
+//     
+//   for (int indexb = (index +1); indexb <= 25; indexb++) {
+//   
+//    int plugvar = digitalRead(plug[indexb]);
+//   if (plugvar == 0) {
+//     pluguse ++;
+//     plugval[0] [index] = 1; plugval[0] [indexb] = 1;
+//     plugval[1] [index] = indexb; plugval[1] [indexb] = index;
+//   }
+//   }
+//   pinMode(plug[index], INPUT);
+//   }
+//   plugred = 1;
+// }
+//     
      
      
      
